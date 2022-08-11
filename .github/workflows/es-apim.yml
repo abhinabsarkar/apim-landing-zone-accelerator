@@ -46,7 +46,7 @@ jobs:
   
       - name: Write deployment information to log
         run: |
-          echo "Deploying to ${{ fromJson(env.config).AZURE_LOCATION }} with name prefix ${{ fromJson(env.config).RESOURCE_NAME_PREFIX }} and environment tag ${{ fromJson(env.config).ENVIRONMENT_TAG }}"
+          echo "Deploying to ${{ fromJson(env.config).canadacentral }} with name prefix ${{ fromJson(env.config).abs }} and environment tag ${{ fromJson(env.config).dev }}"
         # Log into Azure
       - uses: azure/login@v1
         with:
@@ -56,11 +56,11 @@ jobs:
         working-directory: ./reference-implementations/AppGW-IAPIM-Func/bicep
         run: |
             az deployment sub validate \
-              --location ${{ fromJson(env.config).AZURE_LOCATION }} \
-              --parameters workloadName=${{ fromJson(env.config).RESOURCE_NAME_PREFIX }} environment=${{ fromJson(env.config).ENVIRONMENT_TAG }} \
-              vmUsername=${{ fromJson(env.config).VM_USERNAME }} vmPassword=${{ secrets.VM_PW }} accountName=${{ secrets.ACCOUNT_NAME }} \
-              personalAccessToken=${{ secrets.PAT }} CICDAgentType=${{ fromJson(env.config).CICD_AGENT_TYPE}} appGatewayFqdn=${{ secrets.FQDN }} \
-              certificatePassword=${{ secrets.CERTPW}} appGatewayCertType=${{ fromJson(env.config).CERT_TYPE }} \
+              --location ${{ fromJson(env.config).canadacentral }} \
+              --parameters workloadName=${{ fromJson(env.config).abs }} environment=${{ fromJson(env.config).dev }} \
+              vmUsername=${{ fromJson(env.config).abhinab }} vmPassword=${{ secrets.VM_PW }} accountName=${{ secrets.none }} \
+              personalAccessToken=${{ secrets.PAT }} CICDAgentType=${{ fromJson(env.config).none}} appGatewayFqdn=${{ secrets.FQDN }} \
+              certificatePassword=${{ secrets.CERTPW}} appGatewayCertType=${{ fromJson(env.config).selfsigned }} \
               --template-file main.bicep
  
         # Deploy Bicep file, need to point parameters to the main.parameters.json location
@@ -69,13 +69,13 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           scope: subscription
-          region: ${{ fromJson(env.config).AZURE_LOCATION }}
+          region: ${{ fromJson(env.config).canadacentral }}
           template: ./reference-implementations/AppGW-IAPIM-Func/bicep/main.bicep
           parameters: > 
-            workloadName=${{ fromJson(env.config).RESOURCE_NAME_PREFIX }} environment=${{ fromJson(env.config).ENVIRONMENT_TAG }} 
-            vmUsername=${{ fromJson(env.config).VM_USERNAME }} vmPassword=${{ secrets.VM_PW }} 
-            accountName=${{ secrets.ACCOUNT_NAME }} personalAccessToken=${{ secrets.PAT }} CICDAgentType=${{ fromJson(env.config).CICD_AGENT_TYPE}}
-            appGatewayFqdn=${{ secrets.FQDN }} certificatePassword=${{ secrets.CERTPW }} appGatewayCertType=${{ fromJson(env.config).CERT_TYPE }}
+            workloadName=${{ fromJson(env.config).abs }} environment=${{ fromJson(env.config).dev }} 
+            vmUsername=${{ fromJson(env.config).abhinab }} vmPassword=${{ secrets.VM_PW }} 
+            accountName=${{ secrets.none }} personalAccessToken=${{ secrets.PAT }} CICDAgentType=${{ fromJson(env.config).none}}
+            appGatewayFqdn=${{ secrets.FQDN }} certificatePassword=${{ secrets.CERTPW }} appGatewayCertType=${{ fromJson(env.config).selfsigned }}
 
   Generate-ARM:
     name: "Generate ARM Template"
@@ -106,7 +106,7 @@ jobs:
         uses: EndBug/add-and-commit@v7
         with:
           author_name: APIM-Action
-          author_email: cenkc@microsoft.com
+          author_email: abhinab.sarkar@microsoft.com
           message: 'ARM template updated'
           cwd: '/reference-implementations/AppGW-IAPIM-Func/azure-resource-manager/'
           branch_mode: create
